@@ -1,0 +1,55 @@
+﻿CREATE TABLE TaskStatuses (
+    Id SMALLINT PRIMARY KEY IDENTITY(1,1),
+    [Name] NVARCHAR(50) NOT NULL,
+);
+GO
+
+CREATE TABLE TaskTypes (
+    Id SMALLINT PRIMARY KEY IDENTITY(1,1),
+    [Name] NVARCHAR(50) NOT NULL,
+);
+GO
+
+CREATE TABLE CommentTypes (
+    Id SMALLINT PRIMARY KEY IDENTITY(1,1),
+    [Name] NVARCHAR(50) NOT NULL,
+);
+GO
+
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    DisplayName NVARCHAR(100) NOT NULL,
+);
+GO
+
+CREATE TABLE Tasks (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    DateAdded DATETIME NOT NULL DEFAULT GETDATE(),
+    RequiredByDate DATETIME NULL,
+    [Description] NVARCHAR(500) NULL,
+    StatusId SMALLINT NOT NULL,
+    TypeId SMALLINT NULL,
+    UserId INT NULL,
+    NextActionDate DATETIME NULL,
+
+    FOREIGN KEY (StatusId) REFERENCES TaskStatuses(Id),
+    FOREIGN KEY (TypeId) REFERENCES TaskTypes(Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE Comments (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    TaskId INT NOT NULL,
+    DateAdded DATETIME NOT NULL DEFAULT GETDATE(),
+    Comment NVARCHAR(MAX) NOT NULL,
+    TypeId SMALLINT NOT NULL,
+    ReminderDate DATETIME NULL,
+    
+    FOREIGN KEY (TaskId) REFERENCES Tasks(Id),
+    FOREIGN KEY (TypeId) REFERENCES CommentTypes(Id)
+);
+GO
+
+CREATE INDEX IX_Comments_TaskId ON dbo.Comments(TaskId);
+GO

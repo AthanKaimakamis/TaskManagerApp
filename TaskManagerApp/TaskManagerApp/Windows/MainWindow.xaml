@@ -1,0 +1,508 @@
+﻿<Window
+  x:Class="TaskManagerApp.MainWindow"
+  x:Name="self"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="clr-namespace:TaskManagerApp"
+  xmlns:dto="clr-namespace:TaskManagerApp.Models.DTO"
+  xmlns:vm="clr-namespace:TaskManagerApp.ViewModels"
+  xmlns:views="clr-namespace:TaskManagerApp.Views"
+  xmlns:s="clr-namespace:TaskManagerApp.Services"
+  d:DataContext="{d:DesignInstance Type=vm:TasksViewModel}"
+  mc:Ignorable="d"
+  Title="Task Manager System"
+  WindowStyle="SingleBorderWindow"
+  ResizeMode="CanResize"
+  MinHeight="800" MinWidth="1200"
+  Height="800" Width="1200"
+  Background="#1F2421">
+  <Window.Resources>
+    <Style TargetType="TextBlock">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </Window.Resources>
+
+  <Grid Grid.Row="1" Margin="2,5">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="30" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="30" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="1*"/>
+      <ColumnDefinition Width="1.5*"/>
+    </Grid.ColumnDefinitions>
+
+    <!--Tasks-->
+    <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="5,0"
+               Text="{Binding Tasks.Count, StringFormat='Tasks - (Total: {0})'}"/>
+    <Border
+      Grid.Column="0"
+      Grid.Row="1"
+      Grid.RowSpan="3"
+      Background="#216869"
+      CornerRadius="10"
+      Margin="4">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ListBox
+          Grid.Row="1"
+          ItemsSource="{Binding Tasks}"
+          SelectedItem="{Binding SelectedTask}"
+          SelectionMode="Single"
+          HorizontalContentAlignment="Stretch"
+          IsHitTestVisible="True"
+          BorderThickness="0"
+          Background="Transparent">
+
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="ListBoxItem">
+                    <views:CardRowView
+                      x:Name="Bd"
+                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                      Background="#1F2421"
+                      Foreground="White"
+                      Cursor="Hand"
+                      Padding="8,5"
+                      Margin="8,5"
+                      CornerRadius="10">
+                      <views:CardRowView.ContentTemplate>
+                        <DataTemplate DataType="{x:Type dto:TaskDto}">
+                          <Grid>
+                            <Grid.RowDefinitions>
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="Auto" />
+                              <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Due:"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                              <TextBlock
+                              Text="{Binding DataContext.RequiredByDate, Converter={StaticResource HumanizeDateConverter}}"
+                              Margin="0,0,5,0"/>
+                              <TextBlock Text="{Binding DataContext.RequiredByDate, Converter={StaticResource DateFromDateTimeConverter}, StringFormat='({0})'}" />
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Status:" Margin="0,0,5,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DataContext.StatusId, Converter={StaticResource TaskStatusConverter}}" />
+
+                            <TextBlock Grid.Row="4" Grid.ColumnSpan="2" Text="{Binding DataContext.Description, Converter={StaticResource TruncateTextConverter}, ConverterParameter=30}" />
+
+                          </Grid>
+                        </DataTemplate>
+                      </views:CardRowView.ContentTemplate>
+                    </views:CardRowView>
+
+                    <ControlTemplate.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="Bd" Property="Background" Value="#C0E9C5" />
+                        <Setter TargetName="Bd" Property="Foreground" Value="Black" />
+                      </Trigger>
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter TargetName="Bd" Property="Background" Value="#C0E9C5" />
+                        <Setter TargetName="Bd" Property="Foreground" Value="Black" />
+                      </Trigger>
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+        </ListBox>
+      </Grid>
+    </Border>
+
+    <!--Comments-->
+    <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="5,0"
+           Text="{Binding Comments.Count, StringFormat='Tasks - (Total: {0})'}"/>
+    <Border Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Background="#216869" CornerRadius="10" Margin="4" Padding="10" >
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!--Search-->
+        <Border Grid.Row="0" Background="#1F2421" CornerRadius="12" Padding="6">
+          <Grid Margin="5,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="10" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Search:" />
+            <TextBox Grid.Column="2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+          </Grid>
+        </Border>
+        <!--Filters-->
+        <Border Grid.Row="1" Background="#1F2421" CornerRadius="12" Padding="10" Margin="0,10">
+          <StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                Grid.Column="0"
+                Margin="0,0,5,0"
+                Text="Filters" />
+              <Separator Grid.Column="1" Background="White" Margin="0,3,0,0"/>
+            </Grid>
+            <Grid Margin="0,5,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBlock
+                Grid.Row="0"
+                Grid.Column="0"
+                Text="Created Date:"
+                VerticalAlignment="Center"/>
+              <DatePicker
+                Grid.Row="0"
+                Grid.Column="2"
+                SelectedDate="{Binding CommentFilter.DateAdded, Mode=TwoWay}"
+                SelectedDateChanged="Filter_SelectedDateChanged" />
+
+              <TextBlock
+                Grid.Row="2"
+                Grid.Column="0"
+                Text="Type:"
+                VerticalAlignment="Center"/>
+              <ComboBox
+                Grid.Row="2"
+                Grid.Column="2"
+                ItemsSource="{Binding CommentTypesStore, Source={x:Static s:StoreSingletonService.Instance}}"
+                DisplayMemberPath="Value"
+                SelectedValuePath="Id"
+                SelectedValue="{Binding CommentFilter.TypeId, Mode=TwoWay}"
+                SelectionChanged="Filter_SelectedDateChanged"/>
+
+              <TextBlock
+                Grid.Row="4"
+                Grid.Column="0"
+                Text="Remind On:"
+                VerticalAlignment="Center" />
+              <DatePicker
+                Grid.Row="4"
+                Grid.Column="2"
+                SelectedDate="{Binding CommentFilter.ReminderDate, Mode=TwoWay}"
+                SelectedDateChanged="Filter_SelectedDateChanged" />
+
+              <TextBlock
+                Grid.Row="6"
+                Grid.Column="0"
+                Text="Global Search:"
+                VerticalAlignment="Center" />
+              <CheckBox
+                Grid.Row="6"
+                Grid.Column="2"
+                IsChecked="{Binding IsGlobalSearch}"
+                VerticalAlignment="Center"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <ListBox
+          Grid.Row="2"
+          ItemsSource="{Binding Comments}"
+          SelectedItem="{Binding SelectedComment}"
+          SelectionMode="Single"
+          HorizontalContentAlignment="Stretch"
+          IsHitTestVisible="True"
+          BorderThickness="0"
+          Background="Transparent">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="ListBoxItem">
+                    <views:CardRowView
+                      x:Name="Bd"
+                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                      Background="#1F2421"
+                      Foreground="White"
+                      Cursor="Hand"
+                      Padding="8,5"
+                      Margin="0,5">
+                      <views:CardRowView.ContentTemplate>
+                        <DataTemplate DataType="{x:Type dto:CommentDto}">
+                          <Grid>
+                            <Grid.RowDefinitions>
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                              <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="Auto" />
+                              <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Created On:" Margin="0,0,5,0"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                              <TextBlock
+                                Text="{Binding DataContext.DateAdded, Converter={StaticResource HumanizeDateConverter}}"
+                                Margin="0,0,5,0"/>
+                              <TextBlock Text="{Binding DataContext.DateAdded, Converter={StaticResource DateFromDateTimeConverter}, StringFormat='({0})'}" />
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DataContext.TypeId, Converter={StaticResource CommentTypeConverter}}" />
+
+                            <TextBlock Grid.Row="4" Grid.ColumnSpan="2" Text="{Binding DataContext.Comment, Converter={StaticResource TruncateTextConverter}, ConverterParameter=30}" />
+
+                          </Grid>
+                        </DataTemplate>
+                      </views:CardRowView.ContentTemplate>
+                    </views:CardRowView>
+
+                    <ControlTemplate.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="Bd" Property="Background" Value="#C0E9C5" />
+                        <Setter TargetName="Bd" Property="Foreground" Value="Black" />
+                      </Trigger>
+                      <Trigger Property="IsSelected" Value="True">
+                        <Setter TargetName="Bd" Property="Background" Value="#C0E9C5" />
+                        <Setter TargetName="Bd" Property="Foreground" Value="Black" />
+                      </Trigger>
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+        </ListBox>
+      </Grid>
+    </Border>
+
+
+    <!--TaskPanel-->
+    <TextBlock Text="Task" Grid.Column="2" VerticalAlignment="Center"  Margin="5,0"/>
+    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right">
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="Delete"
+        Visibility="{Binding SelectedTask, Converter={StaticResource VisibiityFromNullConverter}}"
+        Command="{Binding DeleteTaskCommand}"/>
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="Edit"
+        Visibility="{Binding SelectedTask, Converter={StaticResource VisibiityFromNullConverter}}"
+        Command="{Binding EditTaskCommand}"/>
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="New Comment"
+        Command="{Binding NewTaskCommand}"/>
+    </StackPanel>
+
+    <Border
+      Grid.Row="1"
+      Grid.Column="2"
+      Grid.ColumnSpan="2"
+      CornerRadius="10"
+      Background="#216869"
+      Margin="4"
+      DataContext="{Binding SelectedTask}">
+      <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Created on:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="0"
+          Grid.Column="2"
+          VerticalAlignment="Center" >
+          <TextBlock.Inlines>
+            <Run Text="{Binding DateAdded, Converter={StaticResource DateFromDateTimeConverter}}" />
+            <Run Text=" - " />
+            <Run Text="{Binding DateAdded, Converter={StaticResource HumanizeDateConverter}}" />
+          </TextBlock.Inlines>
+        </TextBlock>
+
+        <TextBlock Grid.Row="2" Text="Required by:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" >
+          <TextBlock.Inlines>
+            <Run Text="{Binding RequiredByDate, Converter={StaticResource DateFromDateTimeConverter}}" />
+            <Run Text=" - " />
+            <Run Text="{Binding RequiredByDate, Converter={StaticResource HumanizeDateConverter}}" />
+          </TextBlock.Inlines>
+        </TextBlock>
+
+        <TextBlock Grid.Row="4" Text="Status:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="4" Grid.Column="2"
+          Text="{Binding StatusId, Converter={StaticResource TaskStatusConverter}}" />
+
+        <TextBlock Grid.Row="6" Text="Type:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="6" Grid.Column="2"
+          Text="{Binding StatusId, Converter={StaticResource TaskTypeConverter}}" />
+
+        <TextBlock Grid.Row="8" Text="Asignt To:" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="8" Grid.Column="2"
+          Text="{Binding UserId, Converter={StaticResource UserDisplayNameFromIdConverter}}" />
+
+        <TextBlock Grid.Row="10" Text="Description" VerticalAlignment="Center" />
+        <Separator Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" Margin="0,4,0,0" />
+
+        <ScrollViewer
+          Grid.Row="12"
+          Grid.ColumnSpan="3"
+          VerticalScrollBarVisibility="Auto"
+          HorizontalScrollBarVisibility="Disabled">
+          <TextBlock
+            TextWrapping="Wrap"
+            VerticalAlignment="Stretch"
+            IsEnabled="False"
+            Text="{Binding Description}" />
+        </ScrollViewer>
+      </Grid>
+    </Border>
+
+    <!--CommentPanel-->
+    <TextBlock Text="Comment" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Margin="5,0" />
+    <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right">
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="Delete"
+        Visibility="{Binding SelectedComment, Converter={StaticResource VisibiityFromNullConverter}}"
+        Command="{Binding DeleteCommentCommand}"/>
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="Edit"
+        Visibility="{Binding SelectedComment, Converter={StaticResource VisibiityFromNullConverter}}"
+        Command="{Binding EditCommentCommand}"/>
+      <Button
+        Margin="10,1"
+        Padding="10,5"
+        Content="New Comment"
+        IsEnabled="{Binding SelectedTask, Converter={StaticResource IsNotNullConverter}}"
+        Command="{Binding NewCommentCommand}"/>
+    </StackPanel>
+
+    <Border
+      Grid.Row="3"
+      Grid.Column="2"
+      Grid.ColumnSpan="2"
+      CornerRadius="10"
+      Background="#216869"
+      Margin="4"
+      DataContext="{Binding SelectedComment}">
+      <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Created ony:" VerticalAlignment="Center" />
+        <TextBlock
+          Grid.Row="0"
+          Grid.Column="2"
+          VerticalAlignment="Center" >
+          <TextBlock.Inlines>
+            <Run Text="{Binding DateAdded, Converter={StaticResource DateFromDateTimeConverter}}" />
+            <Run Text=" - " />
+            <Run Text="{Binding DateAdded, Converter={StaticResource HumanizeDateConverter}}" />
+          </TextBlock.Inlines>
+        </TextBlock>
+
+        <TextBlock Grid.Row="2" Text="Type:" VerticalAlignment="Center" />
+        <TextBlock
+          Grid.Row="2"
+          Grid.Column="2"
+          Text="{Binding TypeId, Converter={StaticResource CommentTypeConverter}}" />
+
+        <TextBlock Grid.Row="4" Text="Reminder set for:" VerticalAlignment="Center" />
+        <TextBlock
+          Grid.Row="4"
+          Grid.Column="2"
+          VerticalAlignment="Center" >
+          <TextBlock.Inlines>
+            <Run Text="{Binding ReminderDate, Converter={StaticResource DateFromDateTimeConverter}}" />
+            <Run Text=" - " />
+            <Run Text="{Binding ReminderDate, Converter={StaticResource HumanizeDateConverter}}" />
+          </TextBlock.Inlines>
+        </TextBlock>
+        <TextBlock Grid.Row="8" Text="Comment" VerticalAlignment="Center" />
+        <Separator Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" Margin="0,4,0,0" />
+
+        <ScrollViewer
+          Grid.Row="10"
+          Grid.ColumnSpan="3"
+          VerticalScrollBarVisibility="Auto"
+          HorizontalScrollBarVisibility="Disabled">
+          <TextBlock
+            TextWrapping="Wrap"
+            VerticalAlignment="Stretch"
+            IsEnabled="False"
+            Text="{Binding Comment}" />
+        </ScrollViewer>
+      </Grid>
+    </Border>
+
+
+  </Grid>
+
+  <!--</Grid>-->
+</Window>
