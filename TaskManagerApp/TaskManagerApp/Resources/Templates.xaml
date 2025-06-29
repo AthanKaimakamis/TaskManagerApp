@@ -1,0 +1,30 @@
+﻿<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ControlTemplate x:Key="ButtonToBorderTemplate" TargetType="Button">
+    <Border
+    Background="{TemplateBinding Background}"
+    BorderBrush="{TemplateBinding BorderBrush}"
+    CornerRadius="10"
+    Padding="{TemplateBinding Padding}"
+    SnapsToDevicePixels="True">
+      <ContentPresenter
+      HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+      VerticalAlignment="{TemplateBinding VerticalAlignment}"
+      Content="{TemplateBinding Content}"
+      ContentTemplate="{TemplateBinding ContentTemplate}"/>
+    </Border>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="Row" TargetType="ListBoxItem">
+    <Border
+      Background="{TemplateBinding Background}"
+      BorderBrush="{TemplateBinding BorderBrush}"
+      CornerRadius="10"
+      Margin="5"
+      Padding="{TemplateBinding Padding}"
+      SnapsToDevicePixels="True">
+      <ContentPresenter />
+    </Border>
+  </ControlTemplate>
+</ResourceDictionary>

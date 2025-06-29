@@ -1,0 +1,150 @@
+﻿<Window x:Class="TaskManagerApp.Windows.FormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskManagerApp.Windows"
+        xmlns:vm="clr-namespace:TaskManagerApp.ViewModels"
+        xmlns:s="clr-namespace:TaskManagerApp.Services"
+        mc:Ignorable="d"
+        MinHeight="400" Height="400" MinWidth="300" Width="300"
+        Background="WhiteSmoke">
+  <Window.Resources>
+    
+    <DataTemplate DataType="{x:Type vm:TaskFormViewModel}">
+      <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Required by:" VerticalAlignment="Center" />
+        <DatePicker
+          Grid.Row="0"
+          Grid.Column="2"
+          SelectedDate="{Binding Model.RequiredByDate, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="2" Text="Status:" VerticalAlignment="Center" />
+        <ComboBox
+          Grid.Row="2"
+          Grid.Column="2" 
+          ItemsSource="{Binding TaskStatusesStore, Source={x:Static s:StoreSingletonService.Instance}}"
+          DisplayMemberPath="Value"
+          SelectedValuePath="Id"
+          SelectedValue="{Binding Model.StatusId, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="4" Text="Type:" VerticalAlignment="Center" />
+        <ComboBox
+          Grid.Row="4"
+          Grid.Column="2" 
+          ItemsSource="{Binding TaskTypesStore, Source={x:Static s:StoreSingletonService.Instance}}"
+          DisplayMemberPath="Value"
+          SelectedValuePath="Id"
+          SelectedValue="{Binding Model.TypeId, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="6" Text="Asignt To:" VerticalAlignment="Center" />
+        <ComboBox
+          Grid.Row="6"
+          Grid.Column="2" 
+          ItemsSource="{Binding UsersStore, Source={x:Static s:StoreSingletonService.Instance}}"
+          DisplayMemberPath="Value"
+          SelectedValuePath="Id"
+          SelectedValue="{Binding Model.UserId, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="8" Text="Description" VerticalAlignment="Center" />
+        <Separator Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" Margin="0,4,0,0" />
+
+        <TextBox
+          Grid.Row="10"
+          Grid.ColumnSpan="3" 
+          VerticalScrollBarVisibility="Auto"
+          AcceptsReturn="True"
+          TextWrapping="Wrap"
+          VerticalAlignment="Stretch"
+          Text="{Binding Model.Description}" />
+      </Grid>
+      
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:CommentFormViewModel}">
+      <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="5" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Type:" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="0" Grid.Column="2" 
+          ItemsSource="{Binding CommentTypesStore, Source={x:Static s:StoreSingletonService.Instance}}"
+          DisplayMemberPath="Value"
+          SelectedValuePath="Id"
+          SelectedValue="{Binding Model.TypeId, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="2" Text="Reminder:" VerticalAlignment="Center" />
+        <DatePicker Grid.Row="2" Grid.Column="2"
+          SelectedDate="{Binding Model.ReminderDate, Mode=TwoWay}" />
+
+        <TextBlock Grid.Row="4" Text="Description" VerticalAlignment="Center" />
+        <Separator Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Margin="0,4,0,0" />
+
+        <TextBox
+          Grid.Row="6"
+          Grid.ColumnSpan="3" 
+          VerticalScrollBarVisibility="Auto"
+          AcceptsReturn="True"
+          TextWrapping="Wrap"
+          VerticalAlignment="Stretch"
+          Text="{Binding Model.Comment}" />
+      </Grid>
+    </DataTemplate>
+  </Window.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    
+    <ContentControl Grid.Row="0" Content="{Binding}" />
+    
+    <DockPanel Grid.Row="1"   Margin="5,10">
+      <Button
+        Content="Cansel"
+        Padding="10,5"
+        DockPanel.Dock="Left"
+        Command="{Binding CloseCommand}" />
+      
+      <Button
+        Content="Save"
+        Padding=" 10,5"
+        DockPanel.Dock="Right"
+        HorizontalAlignment="Right"
+        Command="{Binding SaveCommand}" />
+    </DockPanel>
+  </Grid>
+</Window>
