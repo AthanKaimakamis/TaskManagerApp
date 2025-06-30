@@ -53,25 +53,6 @@ public partial class TasksViewModel : BaseViewModel
     return LoadComments();
   }
 
-  //async Task SearchComment()
-  //{
-  //  if(string.IsNullOrWhiteSpace(SearchText) && SelectedTask is null)
-  //    Comments.Clear();
-  //  SelectedTask = null;
-  //  if (string.IsNullOrWhiteSpace(SearchText))
-  //    return;
-  //  try
-  //  {
-  //    var result = await TasksContextService.Execute(c => c.GetComments(f => f.Comment = SearchText));
-  //    foreach (var comment in result)
-  //      Comments.Add(comment);
-  //  }
-  //  catch (Exception ex)
-  //  {
-  //    MessageBox.Show($"Error searching comments: {ex.Message}", "Search Error", MessageBoxButton.OK, MessageBoxImage.Error);
-  //  }
-  //}
-
   [RelayCommand]
   void DoubleClick(object? param)
   {
@@ -203,11 +184,6 @@ public partial class TasksViewModel : BaseViewModel
           IsGlobalSearch = false;
         CommentFilter.TaskId = SelectedTask?.Id;
         await LoadComments();
-        return;
-
-      case nameof(SelectedComment):
-        // TODO: Handle selected comment change if needed
-
         return;
 
       case nameof(SearchText):
