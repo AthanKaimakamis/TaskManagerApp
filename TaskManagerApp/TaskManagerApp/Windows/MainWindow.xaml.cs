@@ -22,13 +22,4 @@ public partial class MainWindow
 
   private async void Filter_SelectedDateChanged(object sender, SelectionChangedEventArgs e) =>
     await ViewModel.CommentFilterChanged();
-
-  private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-  {
-    if (e.ClickCount == 2)
-      WindowState = (WindowState == WindowState.Normal)
-                    ? WindowState.Maximized
-                    : WindowState.Normal;
-    else DragMove();
-  }
 }

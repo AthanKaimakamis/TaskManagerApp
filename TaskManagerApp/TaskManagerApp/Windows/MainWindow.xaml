@@ -70,7 +70,7 @@
                   <ControlTemplate TargetType="ListBoxItem">
                     <views:CardRowView
                       x:Name="Bd"
-                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                       Background="#1F2421"
                       Foreground="White"
                       Cursor="Hand"
@@ -246,7 +246,7 @@
                   <ControlTemplate TargetType="ListBoxItem">
                     <views:CardRowView
                       x:Name="Bd"
-                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                      DoubleClickCommand="{Binding DataContext.DoubleClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                       Background="#1F2421"
                       Foreground="White"
                       Cursor="Hand"
@@ -323,7 +323,7 @@
       <Button
         Margin="10,1"
         Padding="10,5"
-        Content="New Comment"
+        Content="New Task"
         Command="{Binding NewTaskCommand}"/>
     </StackPanel>
 
